@@ -12,6 +12,11 @@ Rails.application.routes.draw do
   get '/merchants/:id/items/:item_id/edit', to: 'merchant_items#edit'
   patch '/merchants/:id/items/:item_id', to: 'merchant_items#update'
 
+  resources :merchants do
+    resources :bulk_discounts
+  end
+  post '/merchants/:merchant_id/bulk_discounts/:id', to: "bulk_discounts#update"
+
   get '/merchants/:id/invoices', to: 'merchant_invoices#index'
   get '/merchants/:id/invoices/:inv_id', to: 'merchant_invoices#show'
 
@@ -21,7 +26,7 @@ Rails.application.routes.draw do
     get '/', to: 'base#show' #route for admin dashboard
 
     resources :merchants, only: [:index, :show, :edit, :update, :new, :create]
-    
+
     get '/invoices', to: 'invoices#index'
     get '/invoices/:id', to: 'invoices#show'
     patch '/invoices/:id', to: 'invoices#update'
