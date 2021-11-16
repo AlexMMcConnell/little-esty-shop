@@ -54,4 +54,13 @@ RSpec.describe 'merchant dashboard show page' do
     expect(page).to have_content(DateTime.now.new_offset(0).strftime("%A, %B %d, %Y"))
     expect(@merchant.shippable_items.first.name).to appear_before(@merchant.shippable_items.last.name)
   end
+
+  it 'has a link to bulk discounts' do
+    create_list(:bulk_discount, 3, merchant: @merchant)
+    visit "/merchants/#{@merchant.id}/dashboard"
+
+    click_link("All Discounts")
+
+    expect(current_path).to eq("/merchants/#{@merchant.id}/bulk_discounts")
+  end
 end
