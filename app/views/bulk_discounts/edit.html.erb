@@ -1,0 +1,9 @@
+<%= form_with url: merchant_bulk_discount_path(@bulk_discount.merchant, @bulk_discount, method: :put) do |form| %>
+  <%= form.label :percent  %>
+  <%= form.number_field :percent, value: @bulk_discount.percentage_discount, required: true  %><br>
+
+  <%= form.label :quantity  %>
+  <%= form.number_field :quantity, value: @bulk_discount.quantity_threshold, required: true  %><br>
+
+  <%= form.submit %>
+<% end %>
