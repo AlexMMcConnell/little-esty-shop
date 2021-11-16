@@ -1,0 +1,12 @@
+Discount #<%= @bulk_discount.id %>
+<div id="holidays">
+  <ul>
+    <% NagerDateService.holidays.each do |holiday, date| %>
+      <li><%= holiday %>, coming up on <%= date %></li>
+    <% end %>
+  </ul>
+</div>
+
+<p>Percentage Discount: <%= @bulk_discount.percentage_discount %>%, Quantity Threshold: <%= @bulk_discount.quantity_threshold %></p>
+
+<%= link_to "Edit This Bulk Discount", "/merchants/#{@bulk_discount.merchant.id}/bulk_discounts/#{@bulk_discount.id}/edit" %>
