@@ -14,3 +14,5 @@
 <% @merchant.shippable_items.each do |item| %>
   <p><%= item.name %>- Invoice #<%= item.invoice_id %> <%= item.invoice_created_at.strftime("%A, %B %d, %Y") %></p>
 <% end %>
+
+<%= link_to "All Discounts", "/merchants/#{@merchant.id}/bulk_discounts" %>
