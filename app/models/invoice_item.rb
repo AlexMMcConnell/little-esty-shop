@@ -23,24 +23,27 @@ class InvoiceItem < ApplicationRecord
     find_by(invoice: invoice).status
   end
 
+  def bulk_discount
+    discounts = self.item.merchant.bulk_discounts
+    discounts = discounts.sort_by { |discount| -discount.percentage_discount }
+
+    applicable_discounts = discounts.map do |discount|
+      if discount.quantity_threshold <= self.quantity
+        discount
+      end
+    end.flatten
+
+    applicable_discounts.first
+  end
+
   def self.discounted_revenue
     disc_revenue = discounts_applied.sum do |discount|
       discount.revenue
     end
-
-    discount_invoice_ids = discounts_applied.map do |discount|
-      discount.id
-    end
-
-    no_discounts_applied = non_discount_revenue(discount_invoice_ids)
-
     no_disc_revenue = no_discounts_applied.sum do |no_discount|
       no_discount.revenue
     end
-
-    sum = disc_revenue + no_disc_revenue
-    binding.pry
-    sum
+    disc_revenue + no_disc_revenue
   end
 
   def self.non_discount_revenue(inv_item_ids)
@@ -51,6 +54,13 @@ class InvoiceItem < ApplicationRecord
     .select("(invoice_items.unit_price * invoice_items.quantity) AS revenue")
   end
 
+  def self.no_discounts_applied
+    discount_invoice_ids = discounts_applied.map do |discount|
+      discount.id
+    end
+    non_discount_revenue(discount_invoice_ids)
+  end
+
   def self.discounts_applied
     joins(item: [{merchant: :bulk_discounts}])
     .where("invoice_items.quantity >= bulk_discounts.quantity_threshold")
@@ -59,14 +69,5 @@ class InvoiceItem < ApplicationRecord
     .select("invoice_items.id as id")
     .select("bulk_discounts.id AS bulk_discount_id")
     .select("(invoice_items.unit_price * invoice_items.quantity * bulk_discounts.percentage_discount / 100) AS revenue")
-  end
-
-  def inv_item_sum(invoice, new_sum)
-    sum = invoice[0] * invoice[1]
-    if sum = new_sum
-      sum
-    else
-      new_sum
-    end
   end
 end
