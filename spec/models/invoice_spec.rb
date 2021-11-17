@@ -38,14 +38,23 @@ RSpec.describe Invoice, type: :model do
   describe 'instance methods' do
     before :each do
       @invoice = create(:invoice)
+      @merchant = create(:merchant)
+      @item = create(:item, merchant: @merchant)
+      create(:bulk_discount, merchant: @merchant, quantity_threshold: 5, percentage_discount: 50)
 
-      @invoice_item1 = create(:invoice_item, invoice: @invoice, unit_price: 1, quantity: 10)
-      @invoice_item2 = create(:invoice_item, invoice: @invoice, unit_price: 2, quantity: 10)
+      @invoice_item1 = create(:invoice_item, invoice: @invoice, item: @item, unit_price: 10, quantity: 10)
+      @invoice_item2 = create(:invoice_item, invoice: @invoice, item: @item, unit_price: 20, quantity: 10)
     end
 
     describe '.invoice_revenue' do
-      it 'returns the revenue of the invoices belonging to an invoice' do
-        expect(@invoice.invoice_revenue).to eq 30
+      it 'returns the revenue of the invoice items belonging to an invoice' do
+        expect(@invoice.invoice_revenue).to eq 300
+      end
+    end
+
+    describe '.invoice_revenue' do
+      it 'returns the discounted revenue of the invoice items belonging to an invoice' do
+        expect(@invoice.discounted_revenue).to eq 150
       end
     end
   end
