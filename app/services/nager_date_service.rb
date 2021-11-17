@@ -5,7 +5,7 @@ class NagerDateService
     content = conn.get("/api/v3/NextPublicHolidays/US")
     body = parse_response(content)
     body[0..2].each do |holiday|
-      holidays[holiday[:name]] = holiday[:date]
+      holidays[holiday["name"]] = holiday["date"]
     end
     # holidays = {"Thanksgiving Day"=>"2021-11-25",
     #             "Christmas Day"=>"2021-12-24",
@@ -18,7 +18,7 @@ class NagerDateService
   end
 
   def self.conn
-    Faraday.new(url: "https://date.nager.at/")
+    Faraday.new(url: "https://date.nager.at")
   end
 
 end
