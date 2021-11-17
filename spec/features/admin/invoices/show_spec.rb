@@ -4,14 +4,18 @@ require 'rails_helper'
 RSpec.describe "admin invoice show page" do
   before :each do
     @customer = create(:customer)
+    @merchant = create(:merchant)
 
     @invoice = create(:invoice, customer: @customer, created_at: "2012-03-25 09:54:09 UTC", status: 0)
 
-    @item1 = create(:item)
-    @item2 = create(:item)
+    @item1 = create(:item, merchant: @merchant)
+    @item2 = create(:item, merchant: @merchant)
 
     @invoice_item1 = create(:invoice_item, invoice: @invoice, item: @item1, quantity: 1, unit_price: 1000)
     @invoice_item2 = create(:invoice_item, invoice: @invoice, item: @item2, quantity: 10, unit_price: 200)
+
+    @discount = create(:bulk_discount, merchant: @merchant, percentage_discount: 50, quantity_threshold: 5)
+
   end
 
   it 'show invoice information' do
@@ -56,5 +60,11 @@ RSpec.describe "admin invoice show page" do
       click_button "Submit"
       expect(page).to have_content('Status: in progress')
     end
+  end
+
+  it 'shows discounted revenue' do
+    visit "/admin/invoices/#{@invoice.id}"
+
+    expect(page).to have_content("$20.00")
   end
 end

@@ -9,8 +9,10 @@ RSpec.describe 'show page' do
 
     @invoice = create(:invoice, customer: @customer)
     @item = create(:item, merchant: @merchant)
-    @inv_item = create(:invoice_item, invoice: @invoice, item: @item)
-
+    @inv_item = create(:invoice_item, invoice: @invoice, item: @item, quantity: 20, unit_price: 435)
+    @inv_item2 = create(:invoice_item, invoice: @invoice, item: @item, quantity: 10, unit_price: 131)
+    @discount = create(:bulk_discount, merchant: @merchant, percentage_discount: 25, quantity_threshold: 15)
+    @discount2 = create(:bulk_discount, merchant: @merchant, percentage_discount: 50, quantity_threshold: 9)
 
     visit "/merchants/#{@merchant.id}/invoices/#{@invoice.id}"
   end
@@ -32,22 +34,32 @@ RSpec.describe 'show page' do
   it 'shows the item name, quantity ordered, price, invoice item status' do
     expect(page).to have_content(@invoice.items.first.name)
     expect(page).to have_content(@invoice.items.first.invoice_item_quantity(@invoice))
-    expect(page).to have_content("$")
+    expect(page).to have_content("$" + (@inv_item.unit_price/100.0).round(2).to_s )
     expect(page).to have_content(@invoice.items.first.invoice_item_status(@invoice))
   end
 
   it 'shows invoice total revenue' do
-    expect(page).to have_content("$")
+    price = @inv_item.quantity * @inv_item.unit_price + @inv_item2.quantity * @inv_item2.unit_price
+    string_price = (price / 100.0).round(2).to_s
+    expect(page).to have_content("$" + string_price)
   end
 
   it 'shows dropdown for changing status' do
     expect(page).to have_content('packaged pending shipped')
     expect(page).to have_content('Change status')
+
     within("#item-#{@invoice.items.last.id}") do
       expect(page).to_not have_content("Status: #{@invoice.status}")
       select('shipped', from: 'invoice_item_status')
       expect(page).to have_select('invoice_item_status', selected: 'shipped')
       expect(page).to have_content('shipped')
     end
+  end
+
+  it 'shows discounted revenue' do
+    visit "/merchants/#{@merchant.id}/invoices/#{@invoice.id}"
+    price = @inv_item.quantity * @inv_item.unit_price + @inv_item2.quantity * @inv_item2.unit_price
+    string_price = (price / 200.0).round(2).to_s
+    expect(page).to have_content("$" + string_price)
   end
 end
