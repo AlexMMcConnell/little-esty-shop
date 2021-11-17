@@ -8,9 +8,14 @@ RSpec.describe 'show page' do
     @customer = create(:customer)
 
     @invoice = create(:invoice, customer: @customer)
+
     @item = create(:item, merchant: @merchant)
+    @item2 = create(:item, merchant: @merchant)
+
     @inv_item = create(:invoice_item, invoice: @invoice, item: @item, quantity: 20, unit_price: 435)
     @inv_item2 = create(:invoice_item, invoice: @invoice, item: @item, quantity: 10, unit_price: 131)
+    @inv_item3 = create(:invoice_item, invoice: @invoice, item: @item2, quantity: 5, unit_price: 50)
+
     @discount = create(:bulk_discount, merchant: @merchant, percentage_discount: 25, quantity_threshold: 15)
     @discount2 = create(:bulk_discount, merchant: @merchant, percentage_discount: 50, quantity_threshold: 9)
 
@@ -39,8 +44,8 @@ RSpec.describe 'show page' do
   end
 
   it 'shows invoice total revenue' do
-    price = @inv_item.quantity * @inv_item.unit_price + @inv_item2.quantity * @inv_item2.unit_price
-    string_price = (price / 100.0).round(2).to_s
+    price = @inv_item.quantity * @inv_item.unit_price + @inv_item2.quantity * @inv_item2.unit_price + 250
+    string_price = ((price) / 100.0).round(2).to_s
     expect(page).to have_content("$" + string_price)
   end
 
@@ -58,8 +63,14 @@ RSpec.describe 'show page' do
 
   it 'shows discounted revenue' do
     visit "/merchants/#{@merchant.id}/invoices/#{@invoice.id}"
-    price = @inv_item.quantity * @inv_item.unit_price + @inv_item2.quantity * @inv_item2.unit_price
+    price = @inv_item.quantity * @inv_item.unit_price + @inv_item2.quantity * @inv_item2.unit_price + 500
     string_price = (price / 200.0).round(2).to_s
     expect(page).to have_content("$" + string_price)
+  end
+
+  it 'has a link to the bulk discount page for a given discount' do
+    click_link "#{@discount2.percentage_discount}%"
+
+    expect(current_path).to eq("/merchants/#{@merchant.id}/bulk_discounts/#{@discount2.id}")
   end
 end
