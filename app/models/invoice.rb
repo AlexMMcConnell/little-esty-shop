@@ -23,4 +23,8 @@ class Invoice < ApplicationRecord
   def invoice_revenue
     invoice_items.invoice_item_revenue
   end
+
+  def discounted_revenue
+    invoice_items.discounted_revenue
+  end
 end
