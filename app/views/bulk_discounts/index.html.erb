@@ -5,4 +5,4 @@
   <%= link_to "View Discount ##{discount.id}", merchant_bulk_discount_path(discount.merchant, discount) %>
   <%= button_to("Delete Bulk Discount ##{discount.id}", "/merchants/#{discount.merchant.id}/bulk_discounts/#{discount.id}", method: "delete" ) %>
 <% end %>
-<%= link_to "Create a New Discount", new_merchant_bulk_discount_path(@bulk_discounts.first.merchant) %>
+<%= link_to "Create a New Discount", new_merchant_bulk_discount_path(@merchant) %>

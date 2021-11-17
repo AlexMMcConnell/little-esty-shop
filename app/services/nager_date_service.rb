@@ -4,7 +4,6 @@ class NagerDateService
     holidays = Hash.new
     content = conn.get("/api/v3/NextPublicHolidays/US")
     body = parse_response(content)
-    binding.pry
     body[0..2].each do |holiday|
       holidays[holiday[:name]] = holiday[:date]
     end
